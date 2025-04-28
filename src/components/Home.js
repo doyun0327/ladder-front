@@ -4,6 +4,7 @@ import { useSse } from "../context/SseContext";
 
 export default function Home() {
   const [nickname, setNickname] = useState("");
+  const [roomId, setRoomId] = useState("");
   const [lanes, setLanes] = useState(4);
   const navigate = useNavigate();
   const { connect, disconnect, messages, error, isConnected } = useSse();
@@ -24,14 +25,39 @@ export default function Home() {
 
       if (roomId) {
         // 방 ID를 기반으로 SSE 연결 시작
+        setRoomId(roomId);
         connect(roomId);
-        if (isConnected) {
-          console.log(isConnected);
-          navigate(`/game/${roomId}?playerId=${roomId}&nickname=${nickname}`);
-        }
+        // if (isConnected) {
+        console.log(isConnected);
+        navigate(`/game/${roomId}?playerId=${roomId}&nickname=${nickname}`);
+        //}
       }
     } catch (error) {
       console.error("방 생성 오류:", error);
+    }
+  };
+
+  // 방 참여 함수
+  const handleJoinRoom = async () => {
+    if (!nickname || !roomId) return; // 방 ID와 닉네임이 있어야 참여 가능
+
+    const bodyData = { roomId, nickname };
+    try {
+      const res = await fetch("http://localhost:9090/join/room", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(bodyData),
+      });
+
+      const message = await res.json();
+      console.log(message); // 방 참여 성공 메시지
+      // 방에 참여한 후 추가 작업 (예: 게임 화면으로 이동)
+      if (res.ok) {
+        connect(roomId);
+        navigate(`/game/${roomId}?playerId=${roomId}&nickname=${nickname}`);
+      }
+    } catch (error) {
+      console.error("방 참여 오류:", error);
     }
   };
 
@@ -136,6 +162,25 @@ export default function Home() {
           onMouseOver={(e) => (e.target.style.backgroundColor = "#7c3aed")}
           onMouseOut={(e) => (e.target.style.backgroundColor = "#8b5cf6")}>
           방 생성
+        </button>
+
+        <button
+          onClick={handleJoinRoom}
+          style={{
+            width: "100%",
+            padding: "0.5rem 1rem",
+            backgroundColor: "#34d399",
+            color: "white",
+            borderRadius: "0.375rem",
+            border: "none",
+            cursor: "pointer",
+            transition: "background-color 0.3s",
+            opacity: !nickname || !roomId ? 0.5 : 1,
+          }}
+          disabled={!nickname || !roomId}
+          onMouseOver={(e) => (e.target.style.backgroundColor = "#10b981")}
+          onMouseOut={(e) => (e.target.style.backgroundColor = "#34d399")}>
+          방 참여
         </button>
       </div>
     </div>
