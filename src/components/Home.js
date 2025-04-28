@@ -4,7 +4,7 @@ import { useSse } from "../context/SseContext";
 
 export default function Home() {
   const [nickname, setNickname] = useState("");
-  const [roomId, setRoomId] = useState("");
+  const [roomId, setRoomId] = useState("20250428163504");
   const [lanes, setLanes] = useState(4);
   const navigate = useNavigate();
   const { connect, disconnect, messages, error, isConnected } = useSse();
@@ -40,7 +40,6 @@ export default function Home() {
   // 방 참여 함수
   const handleJoinRoom = async () => {
     if (!nickname || !roomId) return; // 방 ID와 닉네임이 있어야 참여 가능
-
     const bodyData = { roomId, nickname };
     try {
       const res = await fetch("http://localhost:9090/join/room", {
@@ -49,12 +48,16 @@ export default function Home() {
         body: JSON.stringify(bodyData),
       });
 
-      const message = await res.json();
-      console.log(message); // 방 참여 성공 메시지
-      // 방에 참여한 후 추가 작업 (예: 게임 화면으로 이동)
       if (res.ok) {
+        // 응답이 JSON 형식일 경우 메시지 처리
+        const message = res;
+        console.log(message); // 방 참여 성공 메시지
+        // 방에 참여한 후 추가 작업 (예: 게임 화면으로 이동)
         connect(roomId);
         navigate(`/game/${roomId}?playerId=${roomId}&nickname=${nickname}`);
+      } else {
+        // 오류 처리
+        console.error("방 참여 실패");
       }
     } catch (error) {
       console.error("방 참여 오류:", error);
