@@ -28,7 +28,7 @@ export default function Home() {
         setRoomId(roomId);
         connect(roomId);
         // if (isConnected) {
-        console.log(isConnected);
+        //console.log(isConnected);
         navigate(`/game/${roomId}?playerId=${roomId}&nickname=${nickname}`);
         //}
       }
