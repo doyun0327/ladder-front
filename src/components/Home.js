@@ -23,8 +23,12 @@ export default function Home() {
       console.log("당첨 레인:", winRailNo);
 
       if (roomId) {
-        connect(roomId); // 방 ID를 기반으로 SSE 연결 시작
-        navigate(`/game/${roomId}?playerId=${roomId}&nickname=${nickname}`);
+        // 방 ID를 기반으로 SSE 연결 시작
+        connect(roomId);
+        if (isConnected) {
+          console.log(isConnected);
+          navigate(`/game/${roomId}?playerId=${roomId}&nickname=${nickname}`);
+        }
       }
     } catch (error) {
       console.error("방 생성 오류:", error);
